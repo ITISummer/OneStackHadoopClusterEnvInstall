@@ -55,7 +55,8 @@ check_ip $1
 sed -i "4c BOOTPROTO=static" $ifcfg_ens33_file
 sed -i "15c ONBOOT=yes" $ifcfg_ens33_file
 # 向 ifcfg_ens33_file 追加内容
-echo -e "\nIPADDR=$1\nGATEWAY=$ipPrefix.2\nDNS1=$ipPrefix.2" >> $ifcfg_ens33_file
+sed -i '16,25d' $ifcfg_ens33_file
+echo -e "\nIPADDR=$1\nGATEWAY=$ipPrefix.2\nDNS1=114.114.114.114\nDNS2=8.8.8.8" >> $ifcfg_ens33_file
 
 # 重启网卡
 # systemctl restart network
@@ -74,7 +75,7 @@ useradd $userToAdd
 # passwd $userToAdd | echo $userToAdd | echo $userToAdd
 echo $userToAdd:"$userToAdd" | chpasswd
 
-# sudoers 添加新创建的用户 lv TODO -待完善 找到 /etc/sudoers 中第二个root所在行号并在其下一行添加
+# sudoers 添加新创建的用户 lv TODO -（可利用正则匹配-待完善） 找到 /etc/sudoers 中第二个root所在行号并在其下一行添加
 sed -i "101c $userToAdd   ALL=(ALL)     NOPASSWD:ALL\n" $sudoers_file
 
 # 关闭防火墙
