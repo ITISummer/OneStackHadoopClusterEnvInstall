@@ -6,6 +6,15 @@
 # ===============CreateDate: 2023年3月22日================
 #=========================================================
 
+#============================变量定义区=======================
+curUser=lv
+ssh_dir=$HOME/.ssh
+
+if [ `whoami` != "$curUser" ];then
+	echo "非普通用户！请切换到普通用户($curUser)执行此脚本！"
+	exit 1
+fi
+
 #=====================生成和分发rsa的函数=================
 function rsa_gen_and_distribution()
 {
@@ -15,9 +24,12 @@ function rsa_gen_and_distribution()
 	echo '=============当前主机 $USER 用户下完全没有.ssh目录=========='
 	echo '========================================================='
 
-	ssh localhost "exit" # [https://blog.csdn.net/PlatoWG/article/details/84618566]
-	# ssh $host "cd $HOME/.ssh; sh $HOME/bin/.sshgen.sh" #[关于如何获取当前执行脚本文件名的参考](https://www.v2ex.com/t/302728)
-	# ssh $host "cd $HOME/.ssh; pwd;" #[关于如何获取当前执行脚本文件名的参考](https://www.v2ex.com/t/302728)
+	# [https://blog.csdn.net/PlatoWG/article/details/84618566]
+	ssh localhost "exit" 
+	# ssh $host "cd $HOME/.ssh; sh $HOME/bin/.sshgen.sh" 
+	# ssh $host "cd $HOME/.ssh; pwd;" 
+	# [关于如何获取当前执行脚本文件名的参考](https://www.v2ex.com/t/302728)
+	# [关于如何获取当前执行脚本文件名的参考](https://www.v2ex.com/t/302728)
 	cd $ssh_dir
 	echo '========================================================='
 	echo "===========开始生成 $1 公钥和私钥并分发==========="
@@ -67,11 +79,11 @@ then
   	exit 1
 fi 
 
-# 参考 [https://www.onitroad.com/jc/linux/centos/check-if-a-directory-exists-in-linux-or-unix-shell.html]
-ssh_dir=$HOME/.ssh
+#[https://www.onitroad.com/jc/linux/centos/check-if-a-directory-exists-in-linux-or-unix-shell.html]
 if [ -d "$ssh_dir" ];then
 	cd $ssh_dir
-	# 判断 id_rsa 和 id_rsa.pub 是否存在 [https://blog.csdn.net/ljlfather/article/details/105106875]
+	# 判断 id_rsa 和 id_rsa.pub 是否存在 
+	# [https://blog.csdn.net/ljlfather/article/details/105106875]
 	if [[ -e "id_rsa" && -e "id_rsa.pub" ]] 
 	then
 		for host in $@ 
