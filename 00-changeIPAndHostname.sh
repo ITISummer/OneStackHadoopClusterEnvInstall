@@ -52,9 +52,12 @@ check_ip $1
 
 # [Shell脚本sed命令修改文件的某一行](https://www.cnblogs.com/azureology/p/13039573.html)
 # 将 ifcfg_ens33_file 文件的第4改为指定值 
-sed -i "4c BOOTPROTO=static" $ifcfg_ens33_file
-sed -i "15c ONBOOT=yes" $ifcfg_ens33_file
+col1=$(sed -n  '/BOOTPROT/=' $ifcfg_ens33_file)
+sed -i "${col1}c BOOTPROTO=static" $ifcfg_ens33_file
+col2=$(sed -n  '/ONBOOT/=' $ifcfg_ens33_file)
+sed -i "${col2}c ONBOOT=yes" $ifcfg_ens33_file
 # 向 ifcfg_ens33_file 追加内容
+#[linux linux sed命令删除一行/多行](https://blog.csdn.net/Trance95/article/details/128793278)
 sed -i '16,25d' $ifcfg_ens33_file
 echo -e "\nIPADDR=$1\nGATEWAY=$ipPrefix.2\nDNS1=114.114.114.114\nDNS2=8.8.8.8" >> $ifcfg_ens33_file
 
