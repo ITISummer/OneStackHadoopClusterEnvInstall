@@ -8,15 +8,18 @@
 
 #============================变量定义区=======================
 curUser=lv
-ssh_dir=$HOME/.ssh
+sshDir=$HOME/.ssh
 
-if [ `whoami` != "$curUser" ];then
-	echo "非普通用户！请切换到普通用户($curUser)执行此脚本！"
-	exit 1
-fi
+function judgeUser()
+{
+	if [ `whoami` == "root" ];then
+		echo "非普通用户！请切换到普通用户($curUser)执行此脚本！"
+		exit 1
+	fi
+}
 
 #=====================生成和分发rsa的函数=================
-function rsa_gen_and_distribution()
+function rsaGenAndDistribution()
 {
 	# 对于当前运行此脚本的主机来说，如果没有 /home/user/.ssh 目录的话则通过执行 ssh localhost 自动生成 .ssh 目录
 	# 注意：对于手动创建的 .ssh 目录来说对于后面进行 ssy-copy-id 命令时会执行成功但是实际上还是需要ssh后输入密码登录 
@@ -30,7 +33,7 @@ function rsa_gen_and_distribution()
 	# ssh $host "cd $HOME/.ssh; pwd;" 
 	# [关于如何获取当前执行脚本文件名的参考](https://www.v2ex.com/t/302728)
 	# [关于如何获取当前执行脚本文件名的参考](https://www.v2ex.com/t/302728)
-	cd $ssh_dir
+	cd $sshDir
 	echo '========================================================='
 	echo "===========开始生成 $1 公钥和私钥并分发==========="
 	echo '========================================================='
@@ -41,7 +44,6 @@ function rsa_gen_and_distribution()
 		ssh-copy-id $host2 | echo yes
 	done
 }
-
 
 #==============ssh到其他主机成功后同步当前脚本=================
 function xsync()
@@ -69,39 +71,44 @@ function xsync()
     done
 }
 
+# 程序入口
+function main()
+{
 
-# main()
-if [ $# -lt 1 ]
-then 
-	echo '========================================='
-	echo '===============参数个数不够=============='
-	echo '========================================='
-  	exit 1
-fi 
+	if [ $# -lt 1 ]
+	then 
+		echo '========================================='
+		echo '===============参数个数不够=============='
+		echo '========================================='
+		exit 1
+	fi 
 
-#[https://www.onitroad.com/jc/linux/centos/check-if-a-directory-exists-in-linux-or-unix-shell.html]
-if [ -d "$ssh_dir" ];then
-	cd $ssh_dir
-	# 判断 id_rsa 和 id_rsa.pub 是否存在 
-	# [https://blog.csdn.net/ljlfather/article/details/105106875]
-	if [[ -e "id_rsa" && -e "id_rsa.pub" ]] 
-	then
-		for host in $@ 
-		do 
-			ssh-copy-id $host | echo yes
-		done
+	#[https://www.onitroad.com/jc/linux/centos/check-if-a-directory-exists-in-linux-or-unix-shell.html]
+	if [ -d "$sshDir" ];then
+		cd $sshDir
+		# 判断 id_rsa 和 id_rsa.pub 是否存在 
+		# [https://blog.csdn.net/ljlfather/article/details/105106875]
+		if [[ -e "id_rsa" && -e "id_rsa.pub" ]] 
+		then
+			for host in $@ 
+			do 
+				ssh-copy-id $host | echo yes
+			done
+		else
+			ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' 
+			for host2 in $@ 
+			do 
+				ssh-copy-id $host2
+			done
+		fi
 	else
-		ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' 
-		for host2 in $@ 
-		do 
-			ssh-copy-id $host2
-		done
+		# 生成 $HOME/.ssh 目录后生成公钥并群发自身公钥
+		rsaGenAndDistribution $@
 	fi
-else
-	# 生成 $HOME/.ssh 目录后生成公钥并群发自身公钥
-	rsa_gen_and_distribution $@
-fi
 
+}
+# 调用main方法
+main
 # 向其他主机同步此脚本
 xsync $@
 
