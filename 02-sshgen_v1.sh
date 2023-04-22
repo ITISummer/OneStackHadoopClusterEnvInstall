@@ -49,7 +49,7 @@ function rsaGenAndDistribution()
 function xsync()
 {
     # 同步当前脚本到相应目录 TODO 如何自动获取当前脚本名称及路径
-    cur_script_file="$HOME/bin/sshgen_v1.sh"
+    cur_script_file="$HOME/bin/02-sshgen_v1.sh"
     #2. 遍历集群所有机器
     for host in $@
     do
@@ -108,7 +108,7 @@ function main()
 
 }
 # 调用main方法
-main
+main $@
 # 向其他主机同步此脚本
 xsync $@
 
