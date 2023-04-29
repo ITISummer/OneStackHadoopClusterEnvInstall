@@ -49,6 +49,7 @@ step8="安装必要软件"
 step9="创建 $module 和 $software"
 step10="创建 $my_env_file 文件"
 
+#=============================函数区========================
 # 实现变量自增
 changeStep()
 {
@@ -96,7 +97,7 @@ function check_ip() {
 # [Shell脚本sed命令修改文件的某一行](https://www.cnblogs.com/azureology/p/13039573.html)
 function changeIfcfg_ens33()
 {
-        logger $step3
+    logger $step3
 	# 将 ifcfg_ens33_file 文件的第4改为指定值 
 	col1=$(sed -n  '/BOOTPROT/=' $ifcfg_ens33_file)
 	sed -i "${col1}c BOOTPROTO=static" $ifcfg_ens33_file
@@ -114,7 +115,7 @@ function changeIfcfg_ens33()
 # [shell脚本如何提取ip地址最后一段](https://zhidao.baidu.com/question/1689556006930690268.html)
 function changeHostname()
 {
-        logger $step4
+    logger $step4
 	# 覆盖 hostname_file 原本内容
 	echo "hadoop${ipAddr##*.}" > $hostname_file
 }
@@ -122,7 +123,7 @@ function changeHostname()
 #配置 hosts 文件
 function changeHosts()
 {
-        logger $step5
+    logger $step5
 	# [shell获取ip地址前三段](https://juejin.cn/s/shell%E8%8E%B7%E5%8F%96ip%E5%9C%B0%E5%9D%80%E5%89%8D%E4%B8%89%E6%AE%B5)
 	echo -e "$ipPrefix.$ipSuffix $hostnamePrefix$ipSuffix\n$ipPrefix.$ip1 $hostnamePrefix$ip1\n$ipPrefix.$ip2 $hostnamePrefix$ip2" > $hosts_file
 
@@ -131,7 +132,7 @@ function changeHosts()
 # [linux创建新用户，并自动设置密码为账号+123的shell脚本](https://blog.csdn.net/Zjhao666/article/details/120924794)
 function addUser()
 {
-        logger $step6
+    logger $step6
 	# 添加用户 lv 
 	useradd $userToAdd
 	# passwd $userToAdd | echo $userToAdd | echo $userToAdd
@@ -144,7 +145,7 @@ function addUser()
 # 关闭防火墙
 function disableFirewall()
 {
-        logger $step7
+    logger $step7
 	systemctl stop firewalld
 	systemctl disable firewalld.service
 }
@@ -152,7 +153,7 @@ function disableFirewall()
 # 安装必要的软件(安装前判断是否已经安装)
 function insSft()
 {
-        logger $step8
+    logger $step8
 	for sft in ${softwares[@]}
 	do
 		if ! which $sft >/dev/null 2>&1; then
@@ -165,7 +166,7 @@ function insSft()
 # 创建文件夹并更改权限
 function addDirAndFile()
 {
-        logger $step9
+    logger $step9
 	mkdir $module
 	mkdir $software
 	chown $userToAdd:$userToAdd $module
@@ -175,7 +176,7 @@ function addDirAndFile()
 # 创建 /etc/profile.d/my_env.sh 用于后续安装软件后存放环境变量
 function createMy_env()
 {
-        logger $step10
+    logger $step10
 	if [ -f "$my_env_file" ];
 	then
 		  echo "$my_env_file 文件存在"
