@@ -49,6 +49,8 @@ step8="安装必要软件"
 step9="创建 $module 和 $software"
 step10="创建 $my_env_file 文件"
 
+#=========================公共函数引入区======================
+source ./common_funcs.sh
 #=============================函数区========================
 # 实现变量自增
 changeStep()
@@ -57,7 +59,7 @@ changeStep()
 }
 
 # 打印日志
-logger()
+logger2()
 {
 	changeStep
 	#[shell脚本中echo显示内容带颜色](https://www.cnblogs.com/lr-ting/archive/2013/02/28/2936792.html)
@@ -67,7 +69,7 @@ logger()
 # [linux的shell脚本判断当前是否为root用户](https://blog.csdn.net/wzy_1988/article/details/8470890)
 function judgeUser()
 {
-	logger $step1
+	logger2 $step1
 	if [ `whoami` != "root" ];then
 		echo "非root用户！请切换到root用户执行此脚本！"
 		exit 1
@@ -77,7 +79,7 @@ function judgeUser()
 
 # [Shell脚本判断IP是否合法性（多种方法）](https://blog.51cto.com/lizhenliang/1736160)
 function check_ip() {
-    logger $step2
+    logger2 $step2
     IP=$ipAddr
     VALID_CHECK=$(echo $IP|awk -F. '$1<=255&&$2<=255&&$3<=255&&$4<=255{print "yes"}')
     if echo $IP|grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then
@@ -97,7 +99,7 @@ function check_ip() {
 # [Shell脚本sed命令修改文件的某一行](https://www.cnblogs.com/azureology/p/13039573.html)
 function changeIfcfg_ens33()
 {
-    logger $step3
+    logger2 $step3
 	# 将 ifcfg_ens33_file 文件的第4改为指定值 
 	col1=$(sed -n  '/BOOTPROT/=' $ifcfg_ens33_file)
 	sed -i "${col1}c BOOTPROTO=static" $ifcfg_ens33_file
@@ -115,7 +117,7 @@ function changeIfcfg_ens33()
 # [shell脚本如何提取ip地址最后一段](https://zhidao.baidu.com/question/1689556006930690268.html)
 function changeHostname()
 {
-    logger $step4
+    logger2 $step4
 	# 覆盖 hostname_file 原本内容
 	echo "hadoop${ipAddr##*.}" > $hostname_file
 }
@@ -123,7 +125,7 @@ function changeHostname()
 #配置 hosts 文件
 function changeHosts()
 {
-    logger $step5
+    logger2 $step5
 	# [shell获取ip地址前三段](https://juejin.cn/s/shell%E8%8E%B7%E5%8F%96ip%E5%9C%B0%E5%9D%80%E5%89%8D%E4%B8%89%E6%AE%B5)
 	echo -e "$ipPrefix.$ipSuffix $hostnamePrefix$ipSuffix\n$ipPrefix.$ip1 $hostnamePrefix$ip1\n$ipPrefix.$ip2 $hostnamePrefix$ip2" > $hosts_file
 
@@ -132,7 +134,7 @@ function changeHosts()
 # [linux创建新用户，并自动设置密码为账号+123的shell脚本](https://blog.csdn.net/Zjhao666/article/details/120924794)
 function addUser()
 {
-    logger $step6
+    logger2 $step6
 	# 添加用户 lv 
 	useradd $userToAdd
 	# passwd $userToAdd | echo $userToAdd | echo $userToAdd
@@ -145,7 +147,7 @@ function addUser()
 # 关闭防火墙
 function disableFirewall()
 {
-    logger $step7
+    logger2 $step7
 	systemctl stop firewalld
 	systemctl disable firewalld.service
 }
@@ -153,7 +155,7 @@ function disableFirewall()
 # 安装必要的软件(安装前判断是否已经安装)
 function insSft()
 {
-    logger $step8
+    logger2 $step8
 	for sft in ${softwares[@]}
 	do
 		if ! which $sft >/dev/null 2>&1; then
@@ -166,7 +168,7 @@ function insSft()
 # 创建文件夹并更改权限
 function addDirAndFile()
 {
-    logger $step9
+    logger2 $step9
 	mkdir $module
 	mkdir $software
 	chown $userToAdd:$userToAdd $module
@@ -176,7 +178,7 @@ function addDirAndFile()
 # 创建 /etc/profile.d/my_env.sh 用于后续安装软件后存放环境变量
 function createMy_env()
 {
-    logger $step10
+    logger2 $step10
 	if [ -f "$my_env_file" ];
 	then
 		  echo "$my_env_file 文件存在"
