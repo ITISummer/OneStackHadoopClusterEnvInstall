@@ -50,7 +50,7 @@ step9="创建 $module 和 $software"
 step10="创建 $my_env_file 文件"
 
 #=========================公共函数引入区======================
-source ./common_funcs.sh
+source ./commons.sh
 #=============================函数区========================
 # 实现变量自增
 changeStep()
@@ -71,7 +71,7 @@ function judgeUser()
 {
 	logger2 $step1
 	if [ `whoami` != "root" ];then
-		echo "非root用户！请切换到root用户执行此脚本！"
+		logger "ERROR" "非root用户！请切换到root用户执行此脚本！"
 		exit 1
 	fi
 
@@ -84,13 +84,13 @@ function check_ip() {
     VALID_CHECK=$(echo $IP|awk -F. '$1<=255&&$2<=255&&$3<=255&&$4<=255{print "yes"}')
     if echo $IP|grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$">/dev/null; then
         if [ ${VALID_CHECK:-no} == "yes" ]; then
-            echo "IP $IP available."
+            logger "INFO" "IP $IP 可用."
         else
-            echo "IP $IP not available!"
+            logger "INFO" "IP $IP 不可用!"
 	    exit 1
         fi
     else
-        echo "IP format error!"
+        logger "INFO" "IP 格式错误!"
 	exit 1
     fi
 }
@@ -159,7 +159,8 @@ function insSft()
 	for sft in ${softwares[@]}
 	do
 		if ! which $sft >/dev/null 2>&1; then
-			echo -e "\033[33m ==========安装 $sft========== \033[0m" 
+			# echo -e "\033[33m ==========安装 $sft========== \033[0m" 
+			logger "INFO" "安装 $sft"
 			yum install -y $sft
 		fi
 	done
@@ -194,14 +195,14 @@ function isReboot()
 	read -n 2 -p "是否重启机器 [Y/N]? " answer
 	case $answer in
 	Y | y)
-	        echo "开始重启电脑,请重新建立连接..."
+	        logger "INFO" "开始重启电脑,请重新建立连接..."
 		reboot
 	;;
 	N | n)
-	      echo "再见，谢谢使用此脚本~"
+	      logger "INFO" "再见，谢谢使用此脚本~"
 	;;
 	*)
-	      echo "输入错误！请输入 Y or N"
+	      logger "INFO" "输入错误！请输入 Y or N"
 	      isReboot
 	;;
 	esac
